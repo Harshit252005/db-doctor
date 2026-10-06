@@ -1,0 +1,10 @@
+PostgreSQL Performance and Indexing Documentation:
+
+1. Sequential Scans vs. Index Scans: 
+A sequential scan reads every row in a table to find matching data. This is highly inefficient for large tables. To fix this, create an index on frequently queried columns. For example: CREATE INDEX idx_user_id ON users (user_id);
+
+2. Partial Indexes: 
+If you only frequently query a specific subset of data (like active users), a partial index is more memory-efficient. Example: CREATE INDEX idx_active_users ON users (status) WHERE status = 'active';
+
+3. The EXPLAIN Command: 
+Always use EXPLAIN or EXPLAIN ANALYZE before your SELECT query to see the database execution plan. If you see "Seq Scan" and a high cost, you likely need an index.

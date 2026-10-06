@@ -1,9 +1,9 @@
-from typing import TypedDict, Annotated
+from typing import TypedDict, Annotated, List
 from langchain_core.messages import BaseMessage
-from langgraph.graph.message import add_messages
+import operator
 
 class AgentState(TypedDict):
-    # add_messages ensures new messages append rather than overwrite
-    messages: Annotated[list[BaseMessage], add_messages]
+    messages: Annotated[List[BaseMessage], operator.add]
     query_plan: str
     error_state: bool
+    context: str  
