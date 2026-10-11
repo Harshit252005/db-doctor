@@ -7,11 +7,12 @@ from agents.rag import search_postgres_docs
 from agents.state import AgentState
 from mcp_server import run_explain_plan
 
+
 load_dotenv()
 
 # Initialize Gemini as the reasoning engine
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3.8-flash",
+    model="gemini-2.5-flash",
     temperature=0,
     google_api_key=os.getenv("GOOGLE_API_KEY")
 )
@@ -52,7 +53,9 @@ def retrieve_documentation_node(state: AgentState):
     
     return {"context": docs_content}
 
+
 # --- NODE 3: Generate Optimization Plan ---
+
 def generate_optimization_node(state: AgentState):
     """Uses Gemini + retrieved documentation to analyze the plan and recommend fixes."""
     print("➡️ [NODE] Generating Optimization with Gemini...")
@@ -76,6 +79,9 @@ def generate_optimization_node(state: AgentState):
     
     response = llm.invoke(prompt_messages)
     return {"messages": [response]}
+
+
+
 
 # --- ROUTER: Conditional Edge Logic ---
 def check_security_router(state: AgentState) -> str:
@@ -107,6 +113,10 @@ workflow.add_conditional_edges(
 
 workflow.add_edge("retriever", "optimizer")
 workflow.add_edge("optimizer", END)
+
+
+
+
 
 # 3. Compile into an executable application
 db_doctor_graph = workflow.compile()
