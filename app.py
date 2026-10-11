@@ -26,7 +26,7 @@ if st.button("Diagnose Query", type="primary"):
             try:
                 # Send request to FastAPI backend
                 response = requests.post(
-                    "http://localhost:8000/api/v1/agent/invoke",
+                    "https://db-doctor-api.onrender.com", 
                     json={"query": sql_query},
                     timeout=60
                 )
