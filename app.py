@@ -14,9 +14,12 @@ st.markdown("Enter a SQL query below to run diagnostics, check execution plans, 
 # Text input for the SQL query
 sql_query = st.text_area(
     "SQL Query:",
-    value="SELECT * FROM users WHERE email = 'alex@example.com' ORDER BY created_at DESC;",
+    value="SELECT * FROM users WHERE status = 'active' ORDER BY created_at DESC;",
     height=100
 )
+
+# Base Render API URL
+API_BASE_URL = "https://db-doctor-api.onrender.com"
 
 if st.button("Diagnose Query", type="primary"):
     if not sql_query.strip():
@@ -24,12 +27,22 @@ if st.button("Diagnose Query", type="primary"):
     else:
         with st.spinner("Analyzing execution plan and querying RAG database..."):
             try:
-                # Send request to FastAPI backend
+                # Target the /diagnose route
+                target_url = f"{API_BASE_URL}/diagnose"
                 response = requests.post(
-                    "https://db-doctor-api.onrender.com", 
+                    target_url, 
                     json={"query": sql_query},
-                    timeout=60
+                    timeout=90
                 )
+                
+                # Fallback check in case the endpoint was mapped to /api/v1/agent/invoke or /
+                if response.status_code == 404:
+                    fallback_url = f"{API_BASE_URL}/api/v1/agent/invoke"
+                    response = requests.post(
+                        fallback_url,
+                        json={"query": sql_query},
+                        timeout=90
+                    )
                 
                 if response.status_code == 200:
                     data = response.json()
@@ -60,6 +73,6 @@ if st.button("Diagnose Query", type="primary"):
                     st.error(f"Server Error ({response.status_code}): {response.text}")
                     
             except requests.exceptions.ConnectionError:
-                st.error("Could not connect to the FastAPI backend. Make sure your `uvicorn` server is running!")
+                st.error("Could not connect to the FastAPI backend. Make sure your Render instance is active!")
             except requests.exceptions.Timeout:
-                st.error("Request timed out waiting for the database and Gemini API.")
+                st.error("Request timed out. If Render's free tier was asleep, it may take 50 seconds to warm up—please retry.")
