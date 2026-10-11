@@ -64,3 +64,4 @@ xxhash==4.0.1
 zstandard==0.25.0
 chromadb
 psycopg2-binary
+langchain-chroma
